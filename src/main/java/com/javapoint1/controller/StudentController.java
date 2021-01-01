@@ -10,4 +10,9 @@ public class StudentController {
 	public String getName() {
 		return "Deepak";
 	}
+	
+	@RequestMapping("/deepak")
+	public String getTemplate() {
+		return "rakesh";
+	}
 }
