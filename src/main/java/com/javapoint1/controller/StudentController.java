@@ -17,7 +17,7 @@ public class StudentController {
 		return "Deepak";
 	}*/
 	
-	@RequestMapping("/file")
+	@RequestMapping("/fileupload")
 	public String getTemplate() {
 		return "rakesh";
 	}
@@ -25,7 +25,7 @@ public class StudentController {
 	@PostMapping("/upload")
 	public String upload(@RequestParam("image_uploads") MultipartFile file) throws IllegalStateException, IOException {
 		Path path = FileSystems.getDefault().getPath(".");
-		String destPathUrl = "E:\\Spring Boot\\simple-file-uploader\\"+file.getOriginalFilename();
+		String destPathUrl = "E:\\Spring Boot\\simple-file-uploader\\UploadedFiles\\"+file.getOriginalFilename();
 		file.transferTo(new File(destPathUrl));
 		return null;
 	}
