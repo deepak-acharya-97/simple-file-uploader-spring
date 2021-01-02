@@ -14,6 +14,11 @@
   <h2>Upload file here</h2>
   <form action="/upload" method="post" enctype="multipart/form-data" >
   <div>
+  <select class="form-control" id="fileExtension" name="fileExtension">
+      <option value="png">png</option>
+      <option value="jpeg">jpeg</option>
+      
+    </select>
     <label for="image_uploads">Choose images to upload (PNG, JPG)</label>
     <input type="file" id="image_uploads" name="image_uploads" accept=".jpg, .jpeg, .png" >
   </div>
