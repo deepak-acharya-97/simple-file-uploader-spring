@@ -7,6 +7,8 @@ import java.nio.file.*;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.core.io.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,10 +19,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Controller
 public class StudentController {
 	
-	/*@RequestMapping("/name")
-	public String getName() {
-		return "Deepak";
-	}*/
+	@GetMapping("/get-text")
+	public @ResponseBody String getText() {
+	    return "Hello world";
+	}
 	
 	@RequestMapping("/fileupload")
 	public String getTemplate() {
@@ -28,10 +30,9 @@ public class StudentController {
 	}
 	
 	@PostMapping(
-			value="/upload",
-			produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
+			value="/upload"
 		)
-	public ResponseEntity<String>  upload(@RequestParam("image_uploads") MultipartFile file, @RequestParam("fileExtension") String fileExtension) throws IllegalStateException, IOException {
+	public Resource  upload(@RequestParam("image_uploads") MultipartFile file, @RequestParam("fileExtension") String fileExtension) throws IllegalStateException, IOException {
 		//Path path = FileSystems.getDefault().getPath(".");
 		String destPathUrl = "E:\\Spring Boot\\simple-file-uploader\\UploadedFiles\\"+file.getOriginalFilename();
 		file.transferTo(new File(destPathUrl));
@@ -51,10 +52,43 @@ public class StudentController {
         inputStream.close();
 		Path path = Paths.get(resultFile);
 		//Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-		String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-				.path("/files/download/")
-				.path(resultFile)
-				.toUriString();
-		return ResponseEntity.ok(fileDownloadUri);
+		Path pathToFile = Paths.get(resultFile);
+        UrlResource resource = null;
+        try {
+            resource = new UrlResource(pathToFile.toUri());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return resource;
+	}
+	
+	@GetMapping("/download")
+	public @ResponseBody ResponseEntity<Resource> download() throws IOException {
+		String resultFile = "E:\\Spring Boot\\simple-file-uploader\\UploadedFiles\\download.png";
+		Path pathToFile = Paths.get(resultFile);
+        /*UrlResource resource = null;
+        try {
+            resource = new UrlResource(pathToFile.toUri());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return resource;*/
+        
+		File file = new File(resultFile);
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+
+        //Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(pathToFile));
+
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
 	}
 }
